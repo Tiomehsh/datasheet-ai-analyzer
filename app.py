@@ -188,15 +188,36 @@ def perform_analysis(data):
             'success': False
         })
     
-    # 如果返回的是结构化结果，直接使用它
-    if isinstance(result, dict) and 'sections' in result:
-        response_data['result'] = result
+    # 处理结果，确保它适合前端显示
+    if isinstance(result, dict):
+        # 如果已经是结构化结果，检查里面的数据确保都是可JSON序列化的
+        if 'sections' in result:
+            for section in result['sections']:
+                if 'data' in section and isinstance(section['data'], dict):
+                    # 确保所有值都是字符串或JSON可序列化的
+                    for key, value in section['data'].items():
+                        if isinstance(value, dict) or isinstance(value, list):
+                            # 已经是JSON格式，不需要处理
+                            pass
+                        else:
+                            # 确保它是字符串
+                            section['data'][key] = str(value)
+            response_data['result'] = result
+        else:
+            # 包装成结构化格式
+            response_data['result'] = {
+                'sections': [{
+                    'title': '分析结果',
+                    'content': [{'type': 'text', 'text': str(result)}],
+                    'data': {}
+                }]
+            }
     else:
         # 如果是普通文本结果，包装成结构化格式
         response_data['result'] = {
             'sections': [{
                 'title': '分析结果',
-                'content': [{'type': 'text', 'text': result}],
+                'content': [{'type': 'text', 'text': str(result) if result else '无结果'}],
                 'data': {}
             }]
         }

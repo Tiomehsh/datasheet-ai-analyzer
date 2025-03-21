@@ -3,6 +3,7 @@ from typing import Dict, Any, Tuple, List, Union
 from config import Config
 from api_client import APIClient
 from script_executor import ScriptExecutor
+import json
 
 def create_excel_info(df: pd.DataFrame) -> Dict[str, Any]:
     """创建Excel文件信息字典，确保所有数据都是JSON可序列化的"""
@@ -185,6 +186,17 @@ Excel文件信息：
                 else:
                     # 检查是否返回了结构化结果
                     is_structured = isinstance(result, dict) and 'sections' in result
+                    
+                    # 确保结构化结果中的所有数据都是可序列化的
+                    if is_structured:
+                        try:
+                            # 尝试序列化结果，确保它可以被JSON化
+                            json.dumps(result)
+                        except Exception as e:
+                            print(f"结果序列化失败: {str(e)}")
+                            # 如果序列化失败，返回错误信息
+                            return script, str(result), f"成功（尝试次数：{attempts}）- 但结果无法序列化为JSON"
+                            
                     status = f"成功（尝试次数：{attempts}）" + (" - 结构化输出" if is_structured else "")
                     return script, result, status
                     

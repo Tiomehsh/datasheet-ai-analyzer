@@ -64,7 +64,11 @@ class AnalysisOutput:
     
     def add_stat(self, name: str, value: Any):
         if self.current_section:
-            self.current_section["data"][name] = str(value)
+            # 确保值是JSON可序列化的
+            if isinstance(value, dict) or isinstance(value, list):
+                self.current_section["data"][name] = value
+            else:
+                self.current_section["data"][name] = str(value)
     
     def end_section(self):
         if self.current_section:
@@ -138,9 +142,23 @@ if __name__ == '__main__':
                 if json_start != -1 and json_end != -1:
                     json_str = output[json_start + len("=== ANALYSIS_RESULT_JSON_START ==="):json_end].strip()
                     structured_result = json.loads(json_str)
+                    
+                    # 确保所有值都是JSON可序列化的
+                    if 'sections' in structured_result:
+                        for section in structured_result['sections']:
+                            if 'data' in section and isinstance(section['data'], dict):
+                                for key, value in list(section['data'].items()):
+                                    # 确保数据是可序列化的
+                                    try:
+                                        json.dumps({key: value})
+                                    except:
+                                        # 如果不能序列化，转换为字符串
+                                        section['data'][key] = str(value)
+                    
                     return structured_result, True
-            except:
-                pass
+            except Exception as e:
+                print(f"解析JSON结果失败: {str(e)}")
+                traceback.print_exc()
             
             # 如果无法提取结构化结果，返回原始输出
             output = result.stdout if result.stdout.strip() else "执行成功但没有输出"
