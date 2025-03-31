@@ -8,6 +8,7 @@ services:
       - "1832:1832"
     volumes:
       - ./uploads:/app/uploads
+      - ./config.json:/app/config.json
     restart: unless-stopped
     environment:
       - FLASK_APP=app.py

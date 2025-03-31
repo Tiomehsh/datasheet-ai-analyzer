@@ -23,7 +23,7 @@
 
 1. 克隆项目到本地：
 ```bash
-git clone [你的仓库地址]
+git clone https://github.com/Tiomehsh/datasheet-ai-analyzer.git
 cd datasheet-ai-analyzer
 ```
 

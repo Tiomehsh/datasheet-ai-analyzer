@@ -23,7 +23,7 @@ English | [简体中文](README_CN.md)
 
 1. Clone the repository:
 ```bash
-git clone [your-repository-url]
+git clone https://github.com/Tiomehsh/datasheet-ai-analyzer.git
 cd datasheet-ai-analyzer
 ```
 
